@@ -6,7 +6,7 @@ import { signOut } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
-  balance: number;
+  balance: string | null;
 }
 
 const Header: React.FC<HeaderProps> = ({ balance }) => {
@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ balance }) => {
         <Box display="flex" alignItems="center">
           <AccountBalanceWalletIcon />
           <Typography variant="h6" marginRight={5} marginLeft={1}>
-            {balance.toFixed(2)}
+          { balance !== null ? `$${Number(balance).toFixed(2)}` : 'Loading balance...' }
           </Typography>
         </Box>
         <Button color="inherit" variant="outlined" onClick={handleSignOut}>

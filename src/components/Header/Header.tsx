@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ balance }) => {
         <Box display="flex" alignItems="center">
           <AccountBalanceWalletIcon />
           <Typography variant="h6" marginRight={5} marginLeft={1}>
-          { balance !== null ? `$${Number(balance).toFixed(2)}` : 'Loading balance...' }
+          { balance !== null ? `$${Number(balance).toFixed(2)}` : '...' }
           </Typography>
         </Box>
         <Button color="inherit" variant="outlined" onClick={handleSignOut}>

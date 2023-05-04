@@ -1,10 +1,9 @@
 import axios, { AxiosError } from 'axios';
+import { ErrorResponse } from '../utils/extractErrorMessage';
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-interface ErrorResponse {
-  error: string;
-}
 
 export const signIn = async (username: string, password: string): Promise<void> => {
   try {

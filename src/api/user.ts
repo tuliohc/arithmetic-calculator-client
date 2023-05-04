@@ -1,10 +1,7 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { extractErrorMessage } from '../utils/extractErrorMessage';
 
 const API_URL = process.env.REACT_APP_API_URL;
-
-interface ErrorResponse {
-  error: string;
-}
 
 export interface BalanceResponse {
   balance: string;
@@ -17,12 +14,7 @@ export const getBalance = async (): Promise<BalanceResponse> => {
     });
     return response.data;
   } catch (error) {
-    let errorMessage = "An unknown error occurred while fetching balance.";
-    if (axios.isAxiosError(error)) {
-      const serverError = error as AxiosError<ErrorResponse>;
-      errorMessage = serverError.response?.data.error || errorMessage;
-    }
-    throw errorMessage;
+    throw extractErrorMessage(error, "An unknown error occurred while fetching balance.");
   }
 };
 

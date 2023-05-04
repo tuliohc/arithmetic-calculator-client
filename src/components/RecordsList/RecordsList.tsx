@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { getRecords } from '../../api/records';
-import './RecordsList.css';
 
 const RecordsList: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
@@ -21,14 +20,15 @@ const RecordsList: React.FC = () => {
     { field: 'createdAt', headerName: 'Created At', width: 200 },
     // Add more columns as needed
   ];
+  
 
   return (
-    <div className="records-list">
+    <>
       <h1>Records List</h1>
       <div style={{ height: 400, width: '100%' }}>
         <DataGrid rows={records} columns={columns} />
       </div>
-    </div>
+    </>
   );
 };
 

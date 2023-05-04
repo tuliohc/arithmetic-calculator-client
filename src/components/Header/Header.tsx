@@ -34,10 +34,10 @@ const Header: React.FC<HeaderProps> = ({ balance }) => {
           Arithmetic Calculator
         </Typography>
         <Box sx={{ flexGrow: 50, display: 'flex', justifyContent: 'center' }}>
-          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }}>
+          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }} onClick={() => navigate('/main-page')}>
             CALCULATOR
           </Button>
-          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }}>
+          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }} onClick={() => navigate('/records-list')}>
             RECORDS
           </Button>
         </Box>

@@ -19,7 +19,8 @@ const RecordsList: React.FC = () => {
     perPage: 10,
     totalCount: 0,
   });
-
+  const [sortField, setSortField] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
@@ -32,12 +33,24 @@ const RecordsList: React.FC = () => {
 
   
   useEffect(() => {
-    fetchRecords(pagination.page, pagination.perPage, debouncedSearchTerm);
-  }, [pagination.page, pagination.perPage, debouncedSearchTerm]);
+    fetchRecords(
+      pagination.page, 
+      pagination.perPage, 
+      debouncedSearchTerm, 
+      sortField, 
+      sortOrder
+    );
+  }, [
+      pagination.page, 
+      pagination.perPage, 
+      debouncedSearchTerm, 
+      sortField, sortOrder
+    ]);
 
-  const fetchRecords = async (page: number, perPage: number, searchTerm: string) => {
+  const fetchRecords = async (page: number, perPage: number, searchTerm: string, sortField: string, sortOrder: string) => {
     try {
-      const data = await getRecords(page, perPage, searchTerm);
+      const sort = `${sortField}:${sortOrder}`;
+      const data = await getRecords(page, perPage, searchTerm, sort);
       setRecords(data.data);
       setPagination((prevState) => ({
         ...prevState,
@@ -82,7 +95,7 @@ const RecordsList: React.FC = () => {
     try {
       const deleted = await deleteRecord(id);
       if (deleted) {
-        await fetchRecords(pagination.page, pagination.perPage, searchTerm);
+        await fetchRecords(pagination.page, pagination.perPage, searchTerm, sortField, sortOrder);
         handleDeleteWithSuccess()
       }
     } catch (error) {
@@ -137,6 +150,7 @@ const RecordsList: React.FC = () => {
     { field: 'userBalance', 
       headerName: 'User Balance', 
       editable: false,
+      sortable: false,
       disableColumnMenu: true,
       width: 150, 
       renderCell: (params: any) => formatAmount(params.value),
@@ -181,15 +195,7 @@ const RecordsList: React.FC = () => {
         </Typography>
       </Box>
       
-      <Box display="flex" justifyContent="flex-end" mb={2} pr={0.4}>
-        <Box display="flex" justifyContent="flex-start" alignItems="center" mb={2} mr={5}>
-          <Checkbox
-            checked={hideDeleted}
-            onChange={handleHideDeletedChange}
-          />
-          <Typography variant="body1">hide deleted rows</Typography>
-        </Box>
-
+      <Box display="flex" justifyContent="flex-start" mb={2} pr={0.4}>
         <TextField
           id="search-input"
           label="Search"
@@ -199,6 +205,47 @@ const RecordsList: React.FC = () => {
           onChange={handleSearchChange}
         />
 
+        <Box display="flex" alignItems="center" mb={2} ml={3}>
+          <Typography variant="body1" mr={1}>Sort by:</Typography>
+          <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+            <InputLabel id="sort-field-label">Field</InputLabel>
+            <Select
+              labelId="sort-field-label"
+              id="sort-field"
+              value={sortField}
+              onChange={(event: SelectChangeEvent<string>) => setSortField(event.target.value as string)}
+              label="Field"
+            >
+              <MenuItem value="amount">Amount</MenuItem>
+              <MenuItem value="userBalance">User Balance</MenuItem>
+              <MenuItem value="operationResponse">Operation Response</MenuItem>
+              <MenuItem value="deletedAt">Deleted At</MenuItem>
+              <MenuItem value="date">Date</MenuItem>
+              <MenuItem value="operationType">Operation Type</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" size="small" sx={{ minWidth: 100, ml: 2 }}>
+            <InputLabel id="sort-order-label">Order</InputLabel>
+            <Select
+              labelId="sort-order-label"
+              id="sort-order"
+              value={sortOrder}
+              onChange={(event: SelectChangeEvent<string>) => setSortOrder(event.target.value as string)}
+              label="Order"
+            >
+              <MenuItem value="asc">Asc</MenuItem>
+              <MenuItem value="desc">Desc</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2} ml={5}>
+          <Checkbox
+            checked={hideDeleted}
+            onChange={handleHideDeletedChange}
+          />
+          <Typography variant="body1">hide deleted rows</Typography>
+        </Box>
       </Box>
       
       <div style={{ height: dataGridHeight, width: '99.7%' }}>

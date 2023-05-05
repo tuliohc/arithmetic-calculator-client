@@ -25,13 +25,19 @@ export interface DeleteRecordResponse {
   date: string;
 }
 
-export const getRecords = async (page?: number, perPage?: number, search?: string): Promise<RecordsResponse> => {
+export const getRecords = async (
+  page?: number, 
+  perPage?: number, 
+  search?: string,
+  sort?: string
+): Promise<RecordsResponse> => {
   try {
     const response = await axios.get(`${API_URL}/records`, {
       params: {
         page,
         perPage,
         search,
+        sort,
       },
       withCredentials: true,
     });

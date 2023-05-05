@@ -122,7 +122,7 @@ const RecordsList: React.FC = () => {
   const columns = [
     { 
       field: 'operationType', 
-      headerName: 'Operation Type', 
+      headerName: 'Operation', 
       width: 150,
       editable: false,
       disableColumnMenu: true,
@@ -131,7 +131,7 @@ const RecordsList: React.FC = () => {
     },
     { 
       field: 'operationResponse', 
-      headerName: 'Operation Response', 
+      headerName: 'Response', 
       width: 150,
       editable: false,
       disableColumnMenu: true,
@@ -148,7 +148,7 @@ const RecordsList: React.FC = () => {
       flex: 1
     },
     { field: 'userBalance', 
-      headerName: 'User Balance', 
+      headerName: 'Balance', 
       editable: false,
       sortable: false,
       disableColumnMenu: true,
@@ -182,10 +182,16 @@ const RecordsList: React.FC = () => {
   
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
-  const minHeight = 150; 
+  const minHeight = records.length !== 0 ? 120 : 165; 
   const rowHeight = 50; 
   const dataGridHeight = minHeight + (rowHeight * records.length);
   const filteredRecords = hideDeleted ? records.filter(record => record.deletedAt === null) : records;
+
+  const dataGridContainerStyle: React.CSSProperties = {
+    height: dataGridHeight,
+    width: '100%',
+    overflowX: 'hidden'
+  };
 
   return (
     <>
@@ -217,11 +223,11 @@ const RecordsList: React.FC = () => {
               label="Field"
             >
               <MenuItem value="amount">Amount</MenuItem>
-              <MenuItem value="userBalance">User Balance</MenuItem>
-              <MenuItem value="operationResponse">Operation Response</MenuItem>
-              <MenuItem value="deletedAt">Deleted At</MenuItem>
+              {/* <MenuItem value="userBalance">Balance</MenuItem> */}
               <MenuItem value="date">Date</MenuItem>
-              <MenuItem value="operationType">Operation Type</MenuItem>
+              <MenuItem value="operationType">Operation</MenuItem>
+              {/* <MenuItem value="operationResponse">Response</MenuItem> */}
+              {/* <MenuItem value="deletedAt">Deleted At</MenuItem> */}
             </Select>
           </FormControl>
           <FormControl variant="outlined" size="small" sx={{ minWidth: 100, ml: 2 }}>
@@ -248,7 +254,7 @@ const RecordsList: React.FC = () => {
         </Box>
       </Box>
       
-      <div style={{ height: dataGridHeight, width: '99.7%' }}>
+      <div style={dataGridContainerStyle}>
         <DataGrid
           autoHeight
           autoPageSize 
@@ -269,12 +275,17 @@ const RecordsList: React.FC = () => {
               backgroundColor: `${primaryColor}`,
               color: "white",
               fontSize: 15
+            },
+            '& .MuiDataGrid-root': {
+              overflowX: 'hidden',
             }
           }}
         />
       </div>
 
-      <Box display="flex" justifyContent="right" mt={0}>
+      {
+        records.length !== 0 ? 
+        <Box display="flex" justifyContent="right">
         <Pagination
           count={Math.ceil(pagination.totalCount / pagination.perPage)}
           page={pagination.page}
@@ -298,6 +309,11 @@ const RecordsList: React.FC = () => {
           </Select>
         </FormControl>
       </Box>
+
+      :
+      <></>
+      }
+      
 
       <Snackbar
         open={showSnackbar}

@@ -4,6 +4,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import { signOut } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
+import { formatAmount } from '../../utils/currencyFormatter'
 
 interface HeaderProps {
   balance: string | null;
@@ -44,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ balance }) => {
         <Box display="flex" alignItems="center">
           <AccountBalanceWalletIcon />
           <Typography variant="h6" marginRight={5} marginLeft={1}>
-          { balance !== null ? `$${Number(balance).toFixed(2)}` : '...' }
+          { balance !== null ? `${formatAmount(balance)}` : '...' }
           </Typography>
         </Box>
         <Button color="inherit" variant="outlined" onClick={handleSignOut}>

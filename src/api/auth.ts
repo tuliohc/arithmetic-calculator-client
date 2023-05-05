@@ -1,5 +1,5 @@
-import axios, { AxiosError } from 'axios';
-import { ErrorResponse } from '../utils/extractErrorMessage';
+import axios from 'axios';
+import { extractErrorMessage } from '../utils/extractErrorMessage';
 
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -14,12 +14,7 @@ export const signIn = async (username: string, password: string): Promise<void> 
       withCredentials: true,
     });
   } catch (error) {
-    let errorMessage = "An unknown error occurred during sign-in.";
-    if (axios.isAxiosError(error) ) {
-      const serverError = error as AxiosError<ErrorResponse>;
-      errorMessage = serverError.response?.data.error || errorMessage;
-    } 
-    throw errorMessage;
+    throw extractErrorMessage(error, "An unknown error occurred during sign-in.");
   }
 };
 
@@ -40,7 +35,6 @@ export const signOut = async (): Promise<void> => {
     const API_URL = process.env.REACT_APP_API_URL;
     return await axios.post(`${API_URL}/users/signout`, {}, { withCredentials: true });
   } catch (error) {
-    console.error('Error during sign-out:', error);
-    throw error;
+    throw extractErrorMessage(error, "Error during sign-out");
   }
 }

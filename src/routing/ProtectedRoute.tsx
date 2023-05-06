@@ -1,3 +1,4 @@
+import { Backdrop, CircularProgress } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { isAuthenticated } from '../services/auth';
@@ -16,6 +17,7 @@ enum AuthStatus {
 const PrivateRouteWrapper: React.FC<PrivateRouteWrapperProps> = ({ children }) => {
   const [authStatus, setAuthStatus] = useState<AuthStatus>(AuthStatus.Unknown);
 
+
   useEffect(() => {
     const checkAuthentication = async () => {
       const isAuthenticatedResult = await isAuthenticated();
@@ -26,7 +28,11 @@ const PrivateRouteWrapper: React.FC<PrivateRouteWrapperProps> = ({ children }) =
   }, []);
 
   if (authStatus === AuthStatus.Unknown) {
-    return <div>Loading...</div>;
+    return (
+      <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
   }
 
   return authStatus === AuthStatus.Authenticated ? (

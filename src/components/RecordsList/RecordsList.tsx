@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { DataGrid, GridRowParams } from '@mui/x-data-grid';
-import { Pagination, Box, Typography, IconButton, Snackbar, Alert, AlertColor, TextField, useTheme, Checkbox, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { DataGrid, GridRowParams, GridValueFormatterParams } from '@mui/x-data-grid';
+import { Pagination, Box, Backdrop, CircularProgress, Typography, IconButton, Snackbar, Alert, AlertColor, TextField, useTheme, Checkbox, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getRecords, deleteRecord, Record } from '../../api/records';
 import { formatDate, formatAmount, formatOperationType } from '../../utils';
-import './RecordsList.css'
 import useDebounce from '../../hooks/useDebounce';
+import useLoading from '../../hooks/useLoading';
+import './RecordsList.css'
 
 const RecordsList: React.FC = () => {
+  const { startLoading, stopLoading, isLoading } = useLoading();
   const [records, setRecords] = useState<Record[]>([]);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success')
@@ -22,6 +24,28 @@ const RecordsList: React.FC = () => {
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const startLoadingRef = useRef(startLoading);
+  const stopLoadingRef = useRef(stopLoading);
+
+  const fetchRecords = useCallback(
+    async (page: number, perPage: number, searchTerm: string, sortField: string, sortOrder: string) => {
+      startLoadingRef.current();
+      try {
+        const sort = `${sortField}:${sortOrder}`;
+        const data = await getRecords(page, perPage, searchTerm, sort);
+        setRecords(data.data);
+        setPagination((prevState) => ({
+          ...prevState,
+          totalCount: data.totalCount,
+        }));
+      } catch (error) {
+        // to do
+      } finally {
+        stopLoadingRef.current();
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     // Move to the first page when search term changes
@@ -31,35 +55,27 @@ const RecordsList: React.FC = () => {
     }));
   }, [debouncedSearchTerm]);
 
-  
   useEffect(() => {
     fetchRecords(
-      pagination.page, 
-      pagination.perPage, 
-      debouncedSearchTerm, 
-      sortField, 
+      pagination.page,
+      pagination.perPage,
+      debouncedSearchTerm,
+      sortField,
       sortOrder
     );
   }, [
-      pagination.page, 
-      pagination.perPage, 
-      debouncedSearchTerm, 
-      sortField, sortOrder
-    ]);
+    pagination.page,
+    pagination.perPage,
+    debouncedSearchTerm,
+    sortField,
+    sortOrder,
+    fetchRecords
+  ]);
 
-  const fetchRecords = async (page: number, perPage: number, searchTerm: string, sortField: string, sortOrder: string) => {
-    try {
-      const sort = `${sortField}:${sortOrder}`;
-      const data = await getRecords(page, perPage, searchTerm, sort);
-      setRecords(data.data);
-      setPagination((prevState) => ({
-        ...prevState,
-        totalCount: data.totalCount,
-      }));
-    } catch (error) {
-      // to do
-    }
-  };
+  useEffect(() => {
+    startLoadingRef.current = startLoading;
+    stopLoadingRef.current = stopLoading;
+  }, [startLoading, stopLoading]);
 
   const getRowClassName = (params: GridRowParams) => {
     if (params.row.deletedAt !== null) {
@@ -91,17 +107,21 @@ const RecordsList: React.FC = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
+    startLoading();
     try {
       const deleted = await deleteRecord(id);
       if (deleted) {
         await fetchRecords(pagination.page, pagination.perPage, searchTerm, sortField, sortOrder);
-        handleDeleteWithSuccess()
+        handleDeleteWithSuccess();
       }
     } catch (error) {
-      handleDeleteError(error as string)
+      handleDeleteError(error as string);
+    } finally {
+      stopLoading();
     }
-  };
+  }, [fetchRecords, pagination.page, pagination.perPage, searchTerm, sortField, sortOrder, startLoading, stopLoading]);
+
 
   const handleDeleteWithSuccess = () => {
     setAlertSeverity('success')
@@ -114,28 +134,28 @@ const RecordsList: React.FC = () => {
     setRemoveRecordMessage(error)
     setShowSnackbar(true);
   }
-  
+
   const handleCloseSnackbar = () => {
     setShowSnackbar(false);
   };
 
-  const columns = [
-    { 
-      field: 'operationType', 
-      headerName: 'Operation', 
+  const columns = useMemo(() => [
+    {
+      field: 'operationType',
+      headerName: 'Operation',
       width: 150,
       editable: false,
       disableColumnMenu: true,
-      valueFormatter: (params: any) => formatOperationType(params.value),
+      valueFormatter: (params: GridValueFormatterParams) => formatOperationType(params.value),
       flex: 1,
     },
-    { 
-      field: 'operationResponse', 
-      headerName: 'Response', 
+    {
+      field: 'operationResponse',
+      headerName: 'Response',
       width: 150,
       editable: false,
       disableColumnMenu: true,
-      valueFormatter: (params: any) => formatOperationType(params.value),
+      valueFormatter: (params: GridValueFormatterParams) => formatOperationType(params.value),
       flex: 1
     },
     {
@@ -147,23 +167,24 @@ const RecordsList: React.FC = () => {
       renderCell: (params: any) => formatAmount(params.value),
       flex: 1
     },
-    { field: 'userBalance', 
-      headerName: 'Balance', 
+    {
+      field: 'userBalance',
+      headerName: 'Balance',
       editable: false,
       sortable: false,
       disableColumnMenu: true,
-      width: 150, 
+      width: 150,
       renderCell: (params: any) => formatAmount(params.value),
       flex: 1
     },
-    { 
-      field: 'date', 
-      headerName: 'Date', 
+    {
+      field: 'date',
+      headerName: 'Date',
       width: 200,
       editable: false,
       disableColumnMenu: true,
       flex: 1
-     },
+    },
     {
       field: 'delete',
       headerName: ' ',
@@ -178,29 +199,33 @@ const RecordsList: React.FC = () => {
         ) : null
       ),
     },
-  ];
-  
+  ], [handleDelete]);
+
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
-  const minHeight = records.length !== 0 ? 120 : 165; 
-  const rowHeight = 50; 
+  const minHeight = records.length !== 0 ? 120 : 165;
+  const rowHeight = 50;
   const dataGridHeight = minHeight + (rowHeight * records.length);
   const filteredRecords = hideDeleted ? records.filter(record => record.deletedAt === null) : records;
 
   const dataGridContainerStyle: React.CSSProperties = {
     height: dataGridHeight,
-    width: '100%',
+    width: '99.8%', // removes horizontal scrollbar
     overflowX: 'hidden'
   };
 
   return (
     <>
+      <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
       <Box display="flex" justifyContent="center" pt={1} sx={{ color: primaryColor }}>
         <Typography variant="h4" mb={4}>
           RECORDS LIST
         </Typography>
       </Box>
-      
+
       <Box display="flex" justifyContent="flex-start" mb={2} pr={0.4}>
         <TextField
           id="search-input"
@@ -223,11 +248,8 @@ const RecordsList: React.FC = () => {
               label="Field"
             >
               <MenuItem value="amount">Amount</MenuItem>
-              {/* <MenuItem value="userBalance">Balance</MenuItem> */}
               <MenuItem value="date">Date</MenuItem>
               <MenuItem value="operationType">Operation</MenuItem>
-              {/* <MenuItem value="operationResponse">Response</MenuItem> */}
-              {/* <MenuItem value="deletedAt">Deleted At</MenuItem> */}
             </Select>
           </FormControl>
           <FormControl variant="outlined" size="small" sx={{ minWidth: 100, ml: 2 }}>
@@ -253,11 +275,11 @@ const RecordsList: React.FC = () => {
           <Typography variant="body1">hide deleted rows</Typography>
         </Box>
       </Box>
-      
+
       <div style={dataGridContainerStyle}>
         <DataGrid
           autoHeight
-          autoPageSize 
+          autoPageSize
           rows={filteredRecords.map((record) => ({ ...record, date: formatDate(record.date) }))}
           columns={columns}
           rowCount={pagination.totalCount}
@@ -282,39 +304,36 @@ const RecordsList: React.FC = () => {
           }}
         />
       </div>
-
       {
-        records.length !== 0 ? 
-        <Box display="flex" justifyContent="right">
-        <Pagination
-          count={Math.ceil(pagination.totalCount / pagination.perPage)}
-          page={pagination.page}
-          onChange={(_, page) => handlePageChange(page)}
-          color="primary"
-          sx={{ mr: 5 }}
-        />
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 120, mr: 1 }}>
-          <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
-          <Select
-            labelId="rows-per-page-label"
-            id="rows-per-page"
-            value={pagination.perPage}
-            onChange={handlePerPageChange}
-            label="Rows per page"
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={25}>25</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+        records.length !== 0 ?
+          <Box display="flex" justifyContent="right">
+            <Pagination
+              count={Math.ceil(pagination.totalCount / pagination.perPage)}
+              page={pagination.page}
+              onChange={(_, page) => handlePageChange(page)}
+              color="primary"
+              sx={{ mr: 5 }}
+            />
+            <FormControl variant="outlined" size="small" sx={{ minWidth: 120, mr: 1 }}>
+              <InputLabel id="rows-per-page-label">Rows per page</InputLabel>
+              <Select
+                labelId="rows-per-page-label"
+                id="rows-per-page"
+                value={pagination.perPage}
+                onChange={handlePerPageChange}
+                label="Rows per page"
+              >
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={25}>25</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
-      :
-      <></>
+          :
+          <></>
       }
-      
-
       <Snackbar
         open={showSnackbar}
         autoHideDuration={6000}
@@ -322,7 +341,7 @@ const RecordsList: React.FC = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled">
-          { removeRecordMessage }
+          {removeRecordMessage}
         </Alert>
       </Snackbar>
     </>

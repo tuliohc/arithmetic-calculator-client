@@ -4,8 +4,8 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import { signOut } from '../../../api/auth';
 import { useNavigate } from 'react-router-dom';
-import { formatAmount } from '../../../utils/currencyFormatter'
 import { useBalance } from '../../../contexts/BalanceContext';
+import { formatAmount } from '../../../utils';
 
 
 const Header: React.FC = () => {

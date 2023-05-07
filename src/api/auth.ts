@@ -8,7 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 export const signIn = async (username: string, password: string): Promise<void> => {
   try {
     await axios.post(`${API_URL}/users/signin`, {
-      username,
+      username: username.toLocaleLowerCase(),
       password,
     },{
       withCredentials: true,

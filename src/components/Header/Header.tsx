@@ -5,13 +5,12 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import { signOut } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import { formatAmount } from '../../utils/currencyFormatter'
+import { useBalance } from '../../contexts/BalanceContext';
 
-interface HeaderProps {
-  balance: string | null;
-}
 
-const Header: React.FC<HeaderProps> = ({ balance }) => {
+const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { balance } = useBalance();
 
   const handleSignOut = async () => {
     try {
@@ -34,8 +33,8 @@ const Header: React.FC<HeaderProps> = ({ balance }) => {
         <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
           Arithmetic Calculator
         </Typography>
-        <Box sx={{ flexGrow: 50, display: 'flex', justifyContent: 'center' }}>
-          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }} onClick={() => navigate('/main-page')}>
+        <Box sx={{ flexGrow: 20, justifyContent: 'center', alignItems: 'right' }}>
+          <Button color="inherit" variant="outlined" sx={{ marginX: 1 }} onClick={() => navigate('/calculator')}>
             CALCULATOR
           </Button>
           <Button color="inherit" variant="outlined" sx={{ marginX: 1 }} onClick={() => navigate('/records-list')}>

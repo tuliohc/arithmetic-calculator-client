@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import { performOperation, OperationParams, OperationResponse } from '../../api/operations'
+import { performOperation, OperationParams, OperationResponse } from '../../api/operations';
 import CalculatorDisplay from './Display/CalculatorDisplay';
 import ButtonGrid from './Buttons/ButtonGrid';
 import { useBalance } from '../../contexts/BalanceContext';
 import { Typography, useTheme } from '@mui/material';
+import { getOperationName } from './_helpers/operations';
 
 const Calculator: React.FC = () => {
   const [displayValue, setDisplayValue] = useState('0');
@@ -21,106 +22,109 @@ const Calculator: React.FC = () => {
     });
   };
 
-  const handleOperation = async (operation: string) => {
-    console.log('Performing operation:', operation);
-    // Add logic to handle each arithmetic operation here
+  // Resets the calculator display and operation
+  const handleDelete = () => {
+    setDisplayValue('0');
+    setOperationDisplay('');
+  };
 
+  // Resets the calculator display and operation
+  const handleBinaryOperation = (symbol: string) => {
+    setOperationDisplay(displayValue + ' ' + symbol);
+    setDisplayValue('');
+  };
+
+  // Executes a unary operation and updates the display
+  const handleUnaryOperation = async (operationName: string) => {
+    const operand = parseFloat(displayValue);
+    const operationData: OperationParams = {
+      operation: operationName,
+      params: JSON.stringify([operand]),
+    };
+
+    try {
+      const operationResponse: OperationResponse = await performOperation(operationData);
+      fetchAndUpdateBalance();
+      setDisplayValue(operationResponse.result);
+    } catch (error) {
+      setDisplayValue('Error');
+      console.error(error);
+    }
+  };
+
+  // Toggle between positive and negative number for the displayValue
+  const handlePlusMinus = () => {
+    setDisplayValue((prevState) => {
+      if (prevState.startsWith('-')) {
+        return prevState.slice(1);
+      } else {
+        return '-' + prevState;
+      }
+    });
+  };
+
+
+  // Handles various calculator operations based on user input
+  const handleOperation = async (operation: string) => {
     switch (operation) {
+      case 'plus_minus':
+        handlePlusMinus();
+        break;
       case 'delete':
-        // Handle delete operation
-        setDisplayValue('0');
-        setOperationDisplay('');
+        handleDelete();
         break;
       case 'addition':
-        // Handle addition operation
-        setOperationDisplay(displayValue + ' +');
-        setDisplayValue('');
+        handleBinaryOperation('+');
         break;
       case 'subtraction':
-        // Handle subtraction operation
-        setOperationDisplay(displayValue + ' -');
-        setDisplayValue('');
+        handleBinaryOperation('-');
         break;
       case 'multiplication':
-        // Handle multiplication operation
-        setOperationDisplay(displayValue + ' ×');
-        setDisplayValue('');
+        handleBinaryOperation('×');
         break;
       case 'division':
-        // Handle division operation
-        setOperationDisplay(displayValue + ' ÷');
-        setDisplayValue('');
+        handleBinaryOperation('÷');
         break;
       case 'square_root':
-        // Handle square root operation
         setOperationDisplay('√' + displayValue);
-        console.log('squareeee')
-        const secondOperand = displayValue !== '' ? parseFloat(displayValue) : undefined;
-        const operationData: OperationParams = {
-          operation: 'square_root',
-          params: JSON.stringify([secondOperand]),
-        };
-        console.log(operationData)
-        try {
-          const operationResponse: OperationResponse = await performOperation(operationData)
-          fetchAndUpdateBalance();
-          setDisplayValue(operationResponse.result);
-          setOperationDisplay('');
-        } catch (error) {
-          setDisplayValue('Error');
-          console.error(error);
-        }
+        handleUnaryOperation('square_root');
         break;
-
+      case 'random_string':
+        setOperationDisplay('Random String');
+        handleUnaryOperation('random_string');
+        break;
       case 'equals':
-        // Handle equals operation
-        if (operationDisplay) {
-          const operationParts = operationDisplay.split(' ');
-          const firstOperand = parseFloat(operationParts[0]);
-          const secondOperand = displayValue !== '' ? parseFloat(displayValue) : undefined;
-          const operationSymbol = operationParts[1];
-
-          let operationName = '';
-          switch (operationSymbol) {
-            case '+':
-              operationName = 'addition';
-              break;
-            case '-':
-              operationName = 'subtraction';
-              break;
-            case '×':
-              operationName = 'multiplication';
-              break;
-            case '÷':
-              operationName = 'division';
-              break;
-            case '√':
-              operationName = 'square_root';
-              break;
-            default:
-              break;
-          }
-
-          if (operationName) {
-            const operationData: OperationParams = {
-              operation: operationName,
-              params: secondOperand !== undefined ? JSON.stringify([firstOperand, secondOperand]) : JSON.stringify([firstOperand]),
-            };
-
-            try {
-              const operationResponse: OperationResponse = await performOperation(operationData);
-              fetchAndUpdateBalance();
-              setDisplayValue(operationResponse.result);
-              setOperationDisplay('');
-            } catch (error) {
-              setDisplayValue('Error');
-              console.error(error);
-            }
-          }
-        }
+        handleEquals(operationDisplay, displayValue);
         break;
       default:
         break;
+    }
+  };
+
+  // Executes the current binary operation and updates the display
+  const handleEquals = async (operationDisplay: string, displayValue: string) => {
+    const operationParts = operationDisplay.split(' ');
+    const firstOperand = parseFloat(operationParts[0]);
+    const secondOperand = displayValue !== '' ? parseFloat(displayValue) : undefined;
+    const operationSymbol = operationParts[1];
+
+    const operationName = getOperationName(operationSymbol);
+
+    if (operationName) {
+      const operationData: OperationParams = {
+        operation: operationName,
+        params: secondOperand !== undefined ? JSON.stringify([firstOperand, secondOperand]) : JSON.stringify([firstOperand]),
+      };
+
+      try {
+        const operationResponse: OperationResponse = await performOperation(operationData);
+        fetchAndUpdateBalance();
+        setDisplayValue(operationResponse.result);
+        setOperationDisplay('');
+      } catch (error) {
+        setDisplayValue('Error');
+        console.error(error);
+      }
     }
   };
 

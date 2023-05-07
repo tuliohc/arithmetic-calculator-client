@@ -135,7 +135,10 @@ const RecordsList: React.FC = () => {
     setShowSnackbar(true);
   }
 
-  const handleCloseSnackbar = () => {
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
     setShowSnackbar(false);
   };
 

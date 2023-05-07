@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import Box from '@mui/material/Box';
+import { Alert, AlertColor, Backdrop, Box, CircularProgress, Snackbar, Typography, useTheme } from '@mui/material';
 import { performOperation, OperationParams, OperationResponse } from '../../api/operations';
 import CalculatorDisplay from './Display/CalculatorDisplay';
 import ButtonGrid from './Buttons/ButtonGrid';
 import { useBalance } from '../../contexts/BalanceContext';
-import { Typography, useTheme } from '@mui/material';
 import { getOperationName } from './_helpers/operations';
+import useLoading from '../../hooks/useLoading';
 
 const Calculator: React.FC = () => {
+  const { isLoading, startLoading, stopLoading } = useLoading();
+  const { fetchAndUpdateBalance } = useBalance();
   const [displayValue, setDisplayValue] = useState('0');
   const [operationDisplay, setOperationDisplay] = useState('');
-  const { fetchAndUpdateBalance } = useBalance();
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState<AlertColor>('success')
 
   const handleClick = (value: string) => {
     setDisplayValue((prevState) => {
@@ -43,12 +47,17 @@ const Calculator: React.FC = () => {
     };
 
     try {
+      startLoading();
       const operationResponse: OperationResponse = await performOperation(operationData);
       fetchAndUpdateBalance();
       setDisplayValue(operationResponse.result);
+      handleOperationWithSuccess(operationResponse)
     } catch (error) {
-      setDisplayValue('Error');
       console.error(error);
+      setDisplayValue('0');
+      handleOperationWithError(error as string)
+    } finally {
+      stopLoading();
     }
   };
 
@@ -117,22 +126,50 @@ const Calculator: React.FC = () => {
       };
 
       try {
+        startLoading();
         const operationResponse: OperationResponse = await performOperation(operationData);
         fetchAndUpdateBalance();
         setDisplayValue(operationResponse.result);
         setOperationDisplay('');
+        handleOperationWithSuccess(operationResponse)
       } catch (error) {
-        setDisplayValue('Error');
         console.error(error);
+        setDisplayValue('0');
+        handleOperationWithError(error as string)
+      } finally {
+        stopLoading();
       }
     }
   };
+
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setShowSnackbar(false);
+  };
+
+  const handleOperationWithSuccess = (operationResponse: OperationResponse) => {
+    const formatedCost = `$${parseFloat(operationResponse.cost).toFixed(2)}`;
+    setAlertSeverity('success')
+    setSnackbarMessage(`Your operation had a cost of ${formatedCost}`)
+    setShowSnackbar(true);
+  }
+
+  const handleOperationWithError = (error: string) => {
+    setAlertSeverity('error')
+    setSnackbarMessage(error)
+    setShowSnackbar(true);
+  }
 
   const theme = useTheme();
   const primaryColor = theme.palette.primary.main;
 
   return (
     <>
+      <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Box display="flex" justifyContent="center" pt={1} sx={{ color: primaryColor }}>
         <Typography variant="h4" mb={4}>
           CALCULATOR
@@ -152,6 +189,17 @@ const Calculator: React.FC = () => {
           <ButtonGrid handleClick={handleClick} handleOperation={handleOperation} />
         </Box>
       </Box>
+        <Snackbar
+          open={showSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{ mt: 8 }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled">
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
     </>
   );
 };

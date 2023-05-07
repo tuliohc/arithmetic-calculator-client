@@ -2,10 +2,10 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CalculateIcon from '@mui/icons-material/Calculate';
-import { signOut } from '../../api/auth';
+import { signOut } from '../../../api/auth';
 import { useNavigate } from 'react-router-dom';
-import { formatAmount } from '../../utils/currencyFormatter'
-import { useBalance } from '../../contexts/BalanceContext';
+import { formatAmount } from '../../../utils/currencyFormatter'
+import { useBalance } from '../../../contexts/BalanceContext';
 
 
 const Header: React.FC = () => {

@@ -42,7 +42,7 @@ const SignIn: React.FC = () => {
       await signIn(email, password);
       // Redirect the user to the main page
       
-      navigate('/main-page');
+      navigate('/calculator');
     } catch (error) {
       setErrorMessage(`Sign-in failed. ${error}`)
       setShowErrorSnackbar(true);

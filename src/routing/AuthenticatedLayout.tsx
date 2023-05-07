@@ -1,6 +1,6 @@
 import React  from 'react';
 import { Box, Container, Paper } from '@mui/material';
-import Header from '../components/Header/Header';
+import Header from '../components/_layout/Header/Header';
 import { BalanceProvider } from '../contexts/BalanceContext';
 
 interface AuthenticatedAppProps {

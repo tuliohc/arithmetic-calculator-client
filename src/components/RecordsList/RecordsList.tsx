@@ -160,7 +160,7 @@ const RecordsList: React.FC = () => {
     },
     {
       field: 'amount',
-      headerName: 'Amount',
+      headerName: 'Cost',
       width: 150,
       editable: false,
       disableColumnMenu: true,
@@ -169,7 +169,7 @@ const RecordsList: React.FC = () => {
     },
     {
       field: 'userBalance',
-      headerName: 'Balance',
+      headerName: 'Balance (before)',
       editable: false,
       sortable: false,
       disableColumnMenu: true,

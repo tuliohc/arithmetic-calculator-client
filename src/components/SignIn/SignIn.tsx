@@ -84,6 +84,7 @@ const SignIn: React.FC = () => {
                 fullWidth
                 id="email"
                 label="Email Address"
+                data-testid="email-field"
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -98,6 +99,7 @@ const SignIn: React.FC = () => {
                 label="Password"
                 type="password"
                 id="password"
+                data-testid="password-field"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -107,6 +109,7 @@ const SignIn: React.FC = () => {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                data-testid="signin-button"
               >
                 Sign In
               </Button>

@@ -24,7 +24,7 @@ const CalculatorDisplay: React.FC<CalculatorDisplayProps> = ({ displayValue }) =
         ml: 0.4
       }}
     >
-      <Typography variant="h5" textAlign="right" noWrap color={lightBlue[800]}>
+      <Typography variant="h5" textAlign="right" noWrap color={lightBlue[800]} data-testid="calculator-display">
         {displayValue}
       </Typography>
     </Paper>

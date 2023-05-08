@@ -11,7 +11,7 @@ export interface Record {
   operationResponse: string;
   deletedAt: string | null;
   date: string;
-  operation_type: string;
+  operationType: string;
 }
 
 export interface RecordsResponse {

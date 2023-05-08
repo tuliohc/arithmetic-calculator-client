@@ -50,11 +50,9 @@
     ]
   },
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/index.tsx",
-      "!src/**/*.d.ts",
-      "!src/**/__tests__/**"
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/src/[^/]*\\.[jt]sx?$"
     ]
   },
   "devDependencies": {

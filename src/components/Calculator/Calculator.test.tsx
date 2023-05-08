@@ -148,12 +148,18 @@ describe('Calculator', () => {
   describe('handlePlusMinus', () => {
     it('should toggle the sign of the displayValue', () => {
       renderCalculator();
+    
+      // Test for changing a positive number to a negative number
       const button7 = screen.getByText('7');
       fireEvent.click(button7);
       const plusMinusButton = screen.getByText('+/-');
       fireEvent.click(plusMinusButton);
       const displayValue = screen.getAllByTestId('calculator-display')[1];
       expect(parseFloat(displayValue.textContent || '0')).toBe(-7);
+    
+      // Test for changing a negative number to a positive number
+      fireEvent.click(plusMinusButton);
+      expect(parseFloat(displayValue.textContent || '0')).toBe(7);
     });
   });
 
@@ -172,24 +178,24 @@ describe('Calculator', () => {
   describe('handleEquals', () => {
     it('should update displayValue with the result of the valid binary operation', async () => {
       (performOperation as jest.Mock).mockResolvedValueOnce({
-        result: '5',
+        result: '1',
         cost: '1',
         errorMessage: '',
       });
 
       renderCalculator();
-      const button2 = screen.getByText('2');
+      const button2 = screen.getByText('3');
       fireEvent.click(button2);
-      const addButton = screen.getByText('+');
+      const addButton = screen.getByText('-');
       fireEvent.click(addButton);
-      const button3 = screen.getByText('3');
+      const button3 = screen.getByText('2');
       fireEvent.click(button3);
       const equalsButton = screen.getByText('=');
       fireEvent.click(equalsButton);
       const displayValue = screen.getAllByTestId('calculator-display')[1];
-      await waitFor(() => expect(displayValue).toHaveTextContent('5'));
+      await waitFor(() => expect(displayValue).toHaveTextContent('1'));
     });
-
+    
     it('should display a Snackbar with a success message when an operation is successful', async () => {
       (performOperation as jest.Mock).mockResolvedValueOnce({
         result: '3',
@@ -206,5 +212,25 @@ describe('Calculator', () => {
     });
   });
   
-
+  describe('Random String', () => {
+    it('should display a random string when the RS button is clicked', async () => {
+      const randomString = 'abcde';
+      (performOperation as jest.Mock).mockResolvedValueOnce({
+        result: randomString,
+        cost: '4',
+        errorMessage: '',
+      });
+    
+      renderCalculator();
+    
+      const rsButton = screen.getByText('RS');
+      fireEvent.click(rsButton);
+    
+      const displayValue = screen.getAllByTestId('calculator-display')[1];
+      await waitFor(() => expect(displayValue.textContent).toBe(randomString));
+    
+      // Check if Snackbar shows the success message
+      expect(await screen.findByText(/Your operation had a cost of/i)).toBeInTheDocument();
+    });
+  })
 });

@@ -39,7 +39,7 @@ const RecordsList: React.FC = () => {
           totalCount: data.totalCount,
         }));
       } catch (error) {
-        // to do
+        // console.error(error)
       } finally {
         stopLoadingRef.current();
       }
@@ -220,7 +220,7 @@ const RecordsList: React.FC = () => {
   return (
     <>
       <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <CircularProgress color="inherit" />
+        <CircularProgress color="inherit" data-testid="loading-indicator"/>
       </Backdrop>
 
       <Box display="flex" justifyContent="center" pt={1} sx={{ color: primaryColor }}>
@@ -341,7 +341,8 @@ const RecordsList: React.FC = () => {
         open={showSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ mt: 8 }}
       >
         <Alert onClose={handleCloseSnackbar} severity={alertSeverity} variant="filled">
           {removeRecordMessage}

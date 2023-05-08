@@ -1,43 +1,114 @@
-import { ReactNode } from "react";
-import { renderHook } from "@testing-library/react-hooks";
+import React, { ReactNode, useEffect, useState } from "react";
+import { render, act, waitFor } from "@testing-library/react";
 import useLoading from "../hooks/useLoading";
-import { LoadingContext, LoadingContextType } from "../contexts/LoadingProvider";
+import { LoadingContext, LoadingContextType, LoadingProvider } from "../contexts/LoadingProvider";
 
-// Create a custom LoadingProvider for testing
-const TestLoadingProvider = ({
-  children,
-  value,
-}: {
+interface TestLoadingProviderProps {
+  setValue: (value: LoadingContextType) => void;
   children: ReactNode;
-  value: LoadingContextType;
+}
+// Create a custom LoadingProvider for testing
+const TestLoadingProvider: React.FC<TestLoadingProviderProps> = ({
+  setValue,
+  children,
 }) => {
+  const [value, setValueState] = useState<LoadingContextType | null>(null);
+
+  useEffect(() => {
+    if (value) {
+      setValue(value);
+    }
+  }, [value, setValue]);
+
   return (
-    <LoadingContext.Provider value={value}>{children}</LoadingContext.Provider>
+    <LoadingProvider>
+      <LoadingContext.Consumer>
+        {(context) => {
+          if (context && !value) {
+            setValueState(context);
+          }
+          return null;
+        }}
+      </LoadingContext.Consumer>
+      {children}
+    </LoadingProvider>
+  );
+};
+
+const TestChild: React.FC = () => {
+  const { isLoading, startLoading, stopLoading } = useLoading();
+  return (
+    <>
+      <div data-testid="loading-status">{isLoading ? "Loading..." : "Not loading"}</div>
+      <button onClick={startLoading}>Start loading</button>
+      <button onClick={stopLoading}>Stop loading</button>
+    </>
   );
 };
 
 describe("useLoading hook", () => {
   it("should return the context value when used within a LoadingProvider", () => {
-    const testValue: LoadingContextType = {
-      isLoading: false,
-      startLoading: () => {},
-      stopLoading: () => {},
+    let testValue: LoadingContextType | {} = {};
+  
+    const setValue = (value: LoadingContextType) => {
+      testValue = value;
     };
-
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <TestLoadingProvider value={testValue}>{children}</TestLoadingProvider>
+  
+    const { getByText } = render(
+      <TestLoadingProvider setValue={setValue}>
+        <TestChild />
+      </TestLoadingProvider>
     );
+  
+    expect(testValue).toBeDefined();
+    expect((testValue as LoadingContextType).isLoading).toBe(false);
+    expect(getByText("Not loading")).toBeInTheDocument();
+  });
+  
+  
 
-    const { result } = renderHook(() => useLoading(), { wrapper });
-
-    expect(result.current).toBe(testValue);
+  it('should throw an error when used outside a LoadingProvider', () => {
+    expect(() => render(<TestChild />)).toThrow(
+      'useLoading must be used within a LoadingProvider.'
+    );
   });
 
-  it("should throw an error when used outside a LoadingProvider", () => {
-    const { result } = renderHook(() => useLoading());
-
-    expect(result.error).toEqual(
-      Error("useLoading must be used within a LoadingProvider.")
+  it("should update loading state when startLoading and stopLoading are called", async () => {
+    let testValue: LoadingContextType | null = null;
+  
+    const setValue = (value: LoadingContextType) => {
+      testValue = value;
+    };
+  
+    const { getByText, getByTestId } = render(
+      <TestLoadingProvider setValue={setValue}>
+        <TestChild />
+      </TestLoadingProvider>
     );
+  
+    expect(getByTestId("loading-status").textContent).toBe("Not loading");
+  
+    // Simulate start loading
+    act(() => {
+      testValue?.startLoading();
+    });
+  
+    // Wait for loading state to update
+    await waitFor(() => {
+      expect(getByTestId("loading-status").textContent).toBe("Loading...");
+    });
+  
+    // Simulate stop loading
+    act(() => {
+      testValue?.stopLoading();
+    });
+  
+    // Wait for loading state to update
+    await waitFor(() => {
+      expect(getByTestId("loading-status").textContent).toBe("Not loading");
+    });
   });
+
+
 });
+

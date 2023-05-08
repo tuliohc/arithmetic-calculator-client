@@ -4,7 +4,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import { signOut } from '../../../api/auth';
 import { useNavigate } from 'react-router-dom';
-import { useBalance } from '../../../contexts/BalanceContext';
+import { useBalance } from '../../../contexts/BalanceProvider';
 import { formatAmount } from '../../../utils';
 
 

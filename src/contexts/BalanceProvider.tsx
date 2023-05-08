@@ -23,7 +23,9 @@ export const BalanceProvider: React.FC<BalanceProviderProps> = ({ children }) =>
   const fetchAndUpdateBalance = async () => {
     try {
       const balanceData: BalanceResponse = await getBalance();
-      setBalance(balanceData.balance);
+      if (balanceData && balanceData.balance !== balance) {
+        setBalance(balanceData.balance);
+      }
     } catch (error) {
       console.error('Error while fetching balance:', error);
     }
@@ -33,6 +35,7 @@ export const BalanceProvider: React.FC<BalanceProviderProps> = ({ children }) =>
     fetchAndUpdateBalance(); // Fetch balance on mount
     const interval = setInterval(fetchAndUpdateBalance, 30000); // Update balance every 30 seconds
     return () => clearInterval(interval); // Clear interval on unmount
+    // eslint-disable-next-line
   }, []);
 
   return (

@@ -3,7 +3,7 @@ import { Alert, AlertColor, Backdrop, Box, CircularProgress, Snackbar, Typograph
 import { performOperation, OperationParams, OperationResponse } from '../../api/operations';
 import CalculatorDisplay from './Display/CalculatorDisplay';
 import ButtonGrid from './Buttons/ButtonGrid';
-import { useBalance } from '../../contexts/BalanceContext';
+import { useBalance } from '../../contexts/BalanceProvider';
 import { getOperationName } from './_helpers/operations';
 import useLoading from '../../hooks/useLoading';
 

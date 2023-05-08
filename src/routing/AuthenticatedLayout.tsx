@@ -1,7 +1,7 @@
 import React  from 'react';
 import { Box, Container, Paper } from '@mui/material';
 import Header from '../components/_layout/Header/Header';
-import { BalanceProvider } from '../contexts/BalanceContext';
+import { BalanceProvider } from '../contexts/BalanceProvider';
 
 interface AuthenticatedAppProps {
   children: React.ReactNode;

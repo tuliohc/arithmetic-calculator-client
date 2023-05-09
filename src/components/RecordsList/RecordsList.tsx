@@ -250,7 +250,7 @@ const RecordsList: React.FC = () => {
               onChange={(event: SelectChangeEvent<string>) => setSortField(event.target.value as string)}
               label="Field"
             >
-              <MenuItem value="amount">Amount</MenuItem>
+              <MenuItem value="amount">Cost</MenuItem>
               <MenuItem value="date">Date</MenuItem>
               <MenuItem value="operationType">Operation</MenuItem>
             </Select>

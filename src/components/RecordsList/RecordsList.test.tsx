@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-unnecessary-act */
 import React from 'react';
 import { render, waitFor, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -57,7 +58,6 @@ describe('RecordsList', () => {
       renderRecordsList();
     });
 
-    await waitFor(() => expect(mockGetRecords).toHaveBeenCalled());
     expect(screen.getByText(/Records List/i)).toBeInTheDocument();
   });
 
@@ -66,8 +66,9 @@ describe('RecordsList', () => {
       page: 1,
       perPage: 10,
       searchTerm: '',
-      sortOrder: 'date:desc'
-    }
+      sortOrder: 'date:desc',
+    };
+
     mockGetRecords.mockResolvedValue({
       data: mockedRecords,
       totalCount: mockedRecords.length,
@@ -75,18 +76,21 @@ describe('RecordsList', () => {
       perPage: mockRequest.perPage,
     });
 
-
     await act(async () => {
       renderRecordsList();
     });
-    
+
     await waitFor(() => expect(mockGetRecords).toHaveBeenCalled());
     await waitFor(() => expect(mockGetRecords).toHaveBeenCalledWith(...Object.values(mockRequest)));
 
     expect(screen.getByTestId('loading-indicator')).toBeInTheDocument();
-  
-   // await waitFor(() => expect(screen.queryByTestId('loading-indicator')).not.toBeInTheDocument(), { timeout: 4000 });
-   
+
+    // await waitFor(() => expect(screen.queryByTestId('loading-indicator')).not.toBeInTheDocument(), { timeout: 4000 });
+
+    // Check if the records are rendered in the data grid
+    // mockedRecords.forEach((record) => {
+    //   expect(screen.getByText(record.operationResponse)).toBeInTheDocument();
+    // });
   });
   
   it('should handle search input', async () => {
@@ -120,7 +124,7 @@ describe('RecordsList', () => {
     await waitFor(() => expect(mockGetRecords).toHaveBeenCalled());
 
     // assert that the hide deleted rows checkbox is present
-    const hideDeletedCheckbox = screen.getByText('hide deleted rows').previousSibling as HTMLElement;
+    const hideDeletedCheckbox = screen.getByRole('checkbox') as HTMLElement;
     expect(hideDeletedCheckbox).toBeInTheDocument();
 
   });

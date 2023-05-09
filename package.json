@@ -54,7 +54,7 @@
       "/node_modules/",
       "/src/[^/]*\\.[jt]sx?$",
       "/src/routing/",
-      "<rootDir>/src/utils/index/ts"
+      "<rootDir>/src/utils/index.ts"
     ]
   },
   "devDependencies": {

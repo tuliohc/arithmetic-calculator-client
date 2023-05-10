@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { extractErrorMessage } from '../utils';
+import { API_URL } from './api';
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 export const signIn = async (username: string, password: string): Promise<void> => {
   try {
@@ -30,7 +30,6 @@ export const checkAuth = async (): Promise<boolean> => {
 
 export const signOut = async (): Promise<void> => {
   try {
-    const API_URL = process.env.REACT_APP_API_URL;
     return await axios.post(`${API_URL}/users/signout`, {}, { withCredentials: true });
   } catch (error) {
     throw extractErrorMessage(error, "Error during sign-out");

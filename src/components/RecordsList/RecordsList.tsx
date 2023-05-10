@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { DataGrid, GridRowParams, GridValueFormatterParams } from '@mui/x-data-grid';
 import { Pagination, Box, Backdrop, CircularProgress, Typography, IconButton, Snackbar, Alert, AlertColor, TextField, useTheme, Checkbox, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getRecords, deleteRecord, Record } from '../../api/records';
+import { Record } from '../../api/records';
+import { execDeleteRecord, execGetRecords } from '../../services/records';
 import { formatDate, formatAmount, formatOperationType } from '../../utils';
 import useDebounce from '../../hooks/useDebounce';
 import useLoading from '../../hooks/useLoading';
@@ -32,7 +33,7 @@ const RecordsList: React.FC = () => {
       startLoadingRef.current();
       try {
         const sort = `${sortField}:${sortOrder}`;
-        const data = await getRecords(page, perPage, searchTerm, sort);
+        const data = await execGetRecords(page, perPage, searchTerm, sort);
         setRecords(data.data);
         setPagination((prevState) => ({
           ...prevState,
@@ -110,7 +111,7 @@ const RecordsList: React.FC = () => {
   const handleDelete = useCallback(async (id: string) => {
     startLoading();
     try {
-      const deleted = await deleteRecord(id);
+      const deleted = await execDeleteRecord(id);
       if (deleted) {
         await fetchRecords(pagination.page, pagination.perPage, searchTerm, sortField, sortOrder);
         handleDeleteWithSuccess();

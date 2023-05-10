@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { extractErrorMessage } from '../utils';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from './api';
 
 export interface BalanceResponse {
   balance: string;

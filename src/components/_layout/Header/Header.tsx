@@ -2,10 +2,10 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CalculateIcon from '@mui/icons-material/Calculate';
-import { signOut } from '../../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import { useBalance } from '../../../contexts/BalanceProvider';
 import { formatAmount } from '../../../utils';
+import { execSignOut } from '../../../services/auth';
 
 
 const Header: React.FC = () => {
@@ -14,7 +14,7 @@ const Header: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await execSignOut();
       // Redirect to the sign-in page
       navigate('/sign-in');
     } catch (error) {

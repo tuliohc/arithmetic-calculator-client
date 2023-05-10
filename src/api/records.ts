@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { extractErrorMessage } from '../utils';
+import { API_URL } from './api';
 
-const API_URL = process.env.REACT_APP_API_URL;
 
 export interface Record {
   _id: string;

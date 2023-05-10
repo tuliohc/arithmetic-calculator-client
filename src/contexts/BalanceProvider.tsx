@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getBalance, BalanceResponse } from '../api/user';
+import { BalanceResponse } from '../api/user';
+import { execGetUserBalance } from '../services/user';
 
 interface BalanceContextValue {
   balance: string | null;
@@ -22,7 +23,7 @@ export const BalanceProvider: React.FC<BalanceProviderProps> = ({ children }) =>
 
   const fetchAndUpdateBalance = async () => {
     try {
-      const balanceData: BalanceResponse = await getBalance();
+      const balanceData: BalanceResponse = await execGetUserBalance();
       if (balanceData && balanceData.balance !== balance) {
         setBalance(balanceData.balance);
       }

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signIn } from '../../api/auth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,6 +11,7 @@ import Container from '@mui/material/Container';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Alert, Snackbar, Grid } from '@mui/material';
+import { execSignIn } from '../../services/auth';
 
 function Copyright(props: any) {
   return (
@@ -39,7 +39,7 @@ const SignIn: React.FC = () => {
     e.preventDefault();
 
     try {
-      await signIn(email, password);
+      await execSignIn(email, password);
       // Redirect the user to the main page
       
       navigate('/calculator');

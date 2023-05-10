@@ -1,46 +1,66 @@
-# Getting Started with Create React App
+# Arithmetic Calculator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the Arithmetic Calculator, a client application built with React, TypeScript, and Material UI. This application interfaces with the [Arithmetic Calculator API](https://github.com/tuliohc/arithmetic-calculator-api) to perform various mathematical operations.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Perform basic arithmetic operations: addition, subtraction, multiplication, division, square root.
+- Fetch a random string from a [3rd party API](https://www.random.org/).
+- User authentication (sign-in) with cookie-based, httpOnly secure authentication.
+- All operations have a cost for the user.
+- Fetch and reduce user balance according with each operation
+- Store and show records of each operation 
+- Soft-delete records and show/hide them 
+- Datagrid with server pagination, sorting, and filtering.
+- Server sign-out cleaning the auth httpOnly secure token
 
-### `npm start`
+## Project Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Important! Make sure to setup and run the [arithmetic-calculator-api](https://github.com/tuliohc/arithmetic-calculator-api) before setup this project!
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+1. Clone this repository to your local machine (main branch).
 
-### `npm test`
+    ```
+    git clone git@github.com:tuliohc/arithmetic-calculator-client.git -b main
+    ``` 
+2. Then, navigate to the project directory and install dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+    ```
+    cd arithmetic-calculator-client
+    npm install
+    ```
+    
+3. Optionally, create a `.env` file at the project root. The content should be:
 
-### `npm run build`
+    ```
+    # Make sure you are running the API at http://localhost:3000
+    REACT_APP_API_URL=http://localhost:3000/dev/api/v1
+    ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. Finally, start the project: `PORT=3001 npm start`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    The application will be available at `http://localhost:3001`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## Project Tests
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Run `npm run test` to run the tests.
+- Run `npm run test:coverage` to get the test coverage report.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Build Project
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+To create the project build, run this: `npm run build`
 
-## Learn More
+## Project Structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The main folders in the project are within de /src:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `/api`: Contains all the API interactions.
+- `/components`: Contains all the reusable components, and pages, including `Calculator`, `RecordsList`, and `SignIn`.
+- `/contexts`: Contains React context for global state management.
+- `/hooks`: Contains custom React hooks like useDebounce and useLoading.
+- `/routing`: Contains the application's routing configuration.
+- `/services`: Contains services used across the application.
+- `/utils`: Contains utility functions.
+

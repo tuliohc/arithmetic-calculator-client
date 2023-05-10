@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 import SignIn from './SignIn';
 import { signIn } from '../../api/auth';
+import { LoadingProvider } from '../../contexts/LoadingProvider';
 
 jest.mock('../../api/auth');
 
 const getFormElements = () => {
   const { getByTestId } = render(
     <BrowserRouter>
-      <SignIn />
+      <LoadingProvider>
+        <SignIn />
+      </LoadingProvider>
     </BrowserRouter>
   );
   const emailField = getByTestId('email-field')
@@ -26,11 +29,11 @@ const getFormElements = () => {
 const simulateUserSignIn = () => {
   const { emailField, passwordField, signinButton } = getFormElements()
 
-  act(() => {
+
     userEvent.type(emailField, 'test@example.com');
     userEvent.type(passwordField, 'testpassword');
     userEvent.click(signinButton);
-  });
+
 }
 
 const mockSignIn = signIn as jest.MockedFunction<typeof signIn>;

@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Alert, Snackbar, Grid, Backdrop, CircularProgress } from '@mui/material';
+import { Alert, Snackbar, Grid, CircularProgress } from '@mui/material';
 import { execSignIn } from '../../services/auth';
 import useLoading from '../../hooks/useLoading';
 
@@ -60,9 +60,6 @@ const SignIn: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
       <Grid
         container
         direction="column"
@@ -112,6 +109,8 @@ const SignIn: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              {
+                !isLoading ?
               <Button
                 type="submit"
                 fullWidth
@@ -121,6 +120,21 @@ const SignIn: React.FC = () => {
               >
                 Sign In
               </Button>
+              :
+
+              <Box 
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  width: '100%', 
+                  mt: 4
+                }}
+              >
+                <CircularProgress />
+              </Box>
+          
+              }
             </Box>
           </Box>
           <Copyright sx={{ mt: 4, mb: 4 }} />

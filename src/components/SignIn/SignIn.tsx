@@ -10,8 +10,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Alert, Snackbar, Grid } from '@mui/material';
+import { Alert, Snackbar, Grid, Backdrop, CircularProgress } from '@mui/material';
 import { execSignIn } from '../../services/auth';
+import useLoading from '../../hooks/useLoading';
 
 function Copyright(props: any) {
   return (
@@ -29,6 +30,7 @@ function Copyright(props: any) {
 const theme = createTheme();
 
 const SignIn: React.FC = () => {
+  const { isLoading, startLoading, stopLoading } = useLoading();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -39,13 +41,16 @@ const SignIn: React.FC = () => {
     e.preventDefault();
 
     try {
+      startLoading();
       await execSignIn(email, password);
+     
       // Redirect the user to the main page
-      
       navigate('/calculator');
     } catch (error) {
       setErrorMessage(`Sign-in failed. ${error}`)
       setShowErrorSnackbar(true);
+    } finally {
+      stopLoading();
     }
   };
 
@@ -55,6 +60,9 @@ const SignIn: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <Backdrop open={isLoading} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Grid
         container
         direction="column"
